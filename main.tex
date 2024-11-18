@@ -1,0 +1,77 @@
+\documentclass[a4paper, 12pt, oneside]{report}
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\usepackage{fontspec}
+\usepackage{float}
+\setmainfont{Times New Roman}
+% \usepackage[style = authoryear]{biblatex}
+% \addbibresource{references.bib}
+\usepackage{setspace}
+\doublespace 
+\usepackage{lipsum}
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+% \usepackage{booktabs}
+\usepackage{cite}
+
+\usepackage{geometry} % 导入geometry宏包
+\geometry{top=2.54cm, bottom=2.54cm, left=2.54cm, right=2.54cm}
+
+\setstretch{1}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+
+\usepackage{tocloft}
+\renewcommand{\cftchapdotsep}{\cftdotsep} % 让章节后有点
+\renewcommand{\cftsecdotsep}{\cftdotsep}  % 让小节后有点
+\setlength{\cftbeforechapskip}{20pt} % 设置章节前的间距
+\setlength{\cftbeforesecskip}{10pt}  % 设置小节前的间距
+
+\usepackage{titlesec}
+\titlespacing*{\chapter}{0pt}{0pt}{10pt} % 章节 {左边距}{上间距}{下间距}
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries} % 标题字体
+  {\appendixname\ \thechapter} % 附录标签格式
+  {10pt} % 标签与标题之间的距离
+  {\Huge} % 标题字体大小
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+
+  % 定义新的section命令，带有数字编号但没有章节号
+% \newcommand{\customsection}[1]{%
+%     \refstepcounter{section}% 递增section计数器
+%     \section*{\thesection\quad #1}% 显示数字编号和标题
+%     \addcontentsline{toc}{section}{\protect\numberline{}#1}% 添加到目录
+% }
+\usepackage{graphicx} % 用于插入图形
+\usepackage{caption}   % 用于自定义标题样式
+% 设置所有图形标题为斜体
+\captionsetup{font=it}
+\captionsetup{justification=centering}
+
+\begin{document}
+
+\include{cover}
+\pagenumbering{roman}
+% \include{publications}
+
+\tableofcontents
+% \listoffigures
+% \listoftables
+
+\pagenumbering{arabic}
+\include{chapters/introduction}
+\include{chapters/goal_objectives_plan}
+\include{chapters/literature_review}
+
+\include{chapters/methodology}
+\include{chapters/experiments}
+
+\include{chapters/conclusion}
+\include{chapters/references}
+\include{chapters/appendices}
+
+\end{document}
+

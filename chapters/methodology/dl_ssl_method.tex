@@ -1,0 +1,127 @@
+
+The SSL problem is defined as a classification problem instead of a regression problem. The algorithm input should be the original sound signal. The output of the DNN should be an array, with 180 elements representing the corresponding probability of DoA.\\
+Notice that the development of the SSL deep learning model's structure is based on a current research project, \textit{Trusted Sound Source Localization} \cite{devin_sound_2024}.
+
+\subsection*{Short-time Fourier Transform}
+\addcontentsline{toc}{subsection}{Short-time Fourier Transform}
+The feature extraction part Learning (DL) approach for sound source localization uses the Short-time Fourier Transform (STFT) projecting the time-domain multi-channel signal \(S\) to the time-frequency domain in the form of a spectrogram and processing the spectrogram using DNN. The STFT retains the audio signal variation with respect to time, as this variation may affect the result of the localization process. \\
+The mathematical expression of the STFT is described as:
+\[
+    \textbf{STFT}_c(s_c(t), t,f) = \int_{-\infty}^{\infty} w(t-\tau) s_c(\tau) e^{-j2\pi f\tau}d\tau 
+\]
+where:
+\begin{itemize}
+    \item \(c\) is the index of microphone.
+    \item \(w\) is a windowed function separating each time frame segment.
+    \item \(t, f\) is the time and frequency in the final time-frequency domain. 
+\end{itemize}
+The discrete implementation of the STFT usually involves using the Fast Fourier Transform (FFT) to implement the transformation:
+\[
+    \textbf{STFT}_c(s_{c,n}, t, f) = \sum_{n = 1}^{N} s_{c,n} w(n-t) e^{-i2\pi k \frac{n}{N}}
+\]
+where:
+\begin{itemize}
+    \item \(s_{c,n}\) is the sample of the audio signal in channel \(c\) and sample index \(n\).
+    \item \(N\) is the total number of samples, which should be \(N = t * f_s\).
+\end{itemize}
+Notice that in the application, this process is in discrete form, using summation instead of integration.
+The resulting spectrogram is a time-frequency domain containing complex numbers, which contains the real part representing the amplitude, and the imaginary part representing the phase shift. Expressing in the form of a 3-dimensional tensor: \(\mathbf{X}_{ctf}\), where \(c\) is current microphone channels, \(f\) is frequency bin, and \(t\) is time frame.
+
+However, during the implementation of the deep-learning process, the model should be able to understand the connection between the amplitude and phase shift for each time-frequency segmentation. Therefore, the imaginary parts are extracted from the original tensor \(\mathbf{X}_{ctf}\), transformed into real numbers, and concatenated along the channel dimension. The final shape of the resulting tensor, which is also the direct input of the DNN, should be:
+\[
+    \mathbf{X} \in \mathbb{R}^{2C\times F \times T}
+\]
+where \(C\) is the total number of microphone channels, \(F\) is the total number of frequency bins, and \(T\) is the total number of time frame.
+
+
+\subsection*{Structure of the Deep-neural Network}
+\addcontentsline{toc}{subsection}{Structure of the Deep-neural Network}
+The structure of the DNN to process the result of STFT utilizes a combination of several structures, including Causal Convolution layers, 2-dimensional Max Pooling Layers,  Long short-term memory structure, and a fully connected layer. 
+Defining the input of the DNN as:
+\[
+    \mathbf{X} \in \mathbb{R}^{B \times 2C\times F \times T}
+\]
+where \(B\) is the batch size per each propagation for the model's training purpose.\\
+Tentatively, the architecture of the DNN's forward propagation is designed as the following:
+\[
+    \textbf{CRNN}(\mathbf{X}) = \textbf{FC}(\textbf{RNN}(\textbf{CNN}(\mathbf{X})))
+\]
+\textbf{CNN} is a convolution block including one layer of multi-head attention, further extracting important features from the multi-channel spectrogram \(\mathbf{X}\) and ignoring the unrelated feature. This block is formed by repeated 2-dimensional convolution block and 2-dimensional max-pooling processes in the time and frequency dimensions, expressed as:
+\begin{align*}
+    \textbf{CNN}(\mathbf{X}) = \textbf{MaxPool2d}(\textbf{CnnBlock}(\textbf{MaxPool2d}(\textbf{MultiHeadAttention}( \\
+    \underbrace{\textbf{MaxPool2d}(\textbf{CnnBlock}(\ldots \textbf{CnnBlock}(\mathbf{X})\ldots}_{\text{3 times}}))))
+\end{align*}
+where the \textbf{MaxPool2d} is a 2-dimensional pooling layer, extracting the maximum number in a kernel. The \textbf{MultiHeadAttention} is a multi-head attention layer, correlating the information across the frequency dimension so that the model can comprehend information across different frequency bins.
+The structure of the \textbf{CnnBlock} is given by:
+\[
+    \textbf{CnnBlock}(\mathbf{x}) = \textbf{Conv2d}(\textbf{BN}(\textbf{ReLU}(\textbf{Conv2d}(\mathbf{x})))
+\]
+where \textbf{Conv2d} is a standard 2-dimensional convolution layer, and \(\mathbf{x}\) is the output from the previous block and input of that block. \textbf{BN} is the batch normalization process, normalizing all the data along the batch dimension. \textbf{ReLU} is the rectified linear unit activation function.\\
+The \textbf{RNN} is a standard long short-term memory layer (LSTM). Before entering the \textbf{RNN} layer, the tensor will be reshaped into a 3-dimensional tensor, and the frequency and channel dimensions will be combined:
+\[
+    \textbf{CNN(X)} = \mathbf{X}_{cnn,out} \in \mathbb{R}^{B \times 2C\times F' \times T'} \rightarrow \mathbf{X}_{rnn,in} \in \mathbb{R}^{B \times T' \times (F' \times 2C)}
+\]
+where the \(T'\) and \(F'\) are the total time frame and frequency bins after the \textbf{CNN} block. With the aid of the LSTM, the DNN should be able to comprehend the signal changes across the time frame. In case there are positional changes in the sound source, the model can correlate the sound source's position in the current time frame to the previous time frame. Meanwhile, through this LSTM process, the output dimension will be settled to 180:
+\[
+    \textbf{RNN}(\mathbf{X}_{rnn,in}) = \mathbf{X}_{rnn,out} \in \mathbb{R}^{B \times T' \times 180}
+\]
+The last layer of the model, the \textbf{RC}, is a fully connected layer, with its structure given by:
+\[
+    \mathbf{X}_{output} \in \mathbb{R}^{B \times T' \times 180} = \textbf{RC}(\mathbf{X}_{rnn,out}) = \textbf{Linear}(\textbf{Dropout}(\mathbf{X}_{rnn,out}))
+\]
+where the \textbf{Dropout} layer randomly discards data in neurons to prevent the over-fitting of the model, and the \textbf{Linear} layer is a linear mapping to the final output. The final output has three dimensions: the \(B\) is the batch size, \(T'\) is the convoluted time frames (the predicted time step), and \(180\) is the classes representing 180 degrees. The final resulting data is \(p \in \mathbb{R}\) representing the possibilities of sound sources existing in each class and each predicted time step.\\
+
+
+\subsection*{Loss}
+\addcontentsline{toc}{subsection}{Loss}
+The loss function is crucial for the evaluation of the model's performance. The function takes in the predicted result and labels ground truth as inputs, and outputs the loss value representing the correctness of the prediction. It is used for the gradient descending process for the DNN training to adjust its parameters to approximate the ground truth, generating more trustworthy results.\\
+In this DNN model, given the predicted output:
+\[
+    x_{b,t,c} = \mathbf{X}_{output} \in \mathbb{R}^{B \times T' \times 180} 
+\]
+and the labeled ground truth:
+\[
+    \mathbf{GT} \in \mathbb{R}^{B \times T'}
+\]
+where in each section of \(\mathbf{GT}\) there exists a DoA in radius representing the true DoA.\\
+The cross-entropy function is used as the loss function. It involves several steps:
+\begin{enumerate}
+    \item Transform the ground truth from radius to degree:
+    \[
+        \text{GroundTruth}_{b,t} = \mathbf{GT}_{deg} = \mathbf{GT} \frac{180}{\pi}
+    \]
+    \item Generate truth label from the \(\mathbf{GT_{deg}}\):
+    \[
+        \text{one hot}(\mathbf{GT_{deg}}) = t_{b,t,c} = 
+        \begin{cases}
+        1 & \text{if } c = \text{GroundTruth}_{b,t}\\
+        0 & \text{if } c \neq \text{GroundTruth}_{b,t}\\
+        \end{cases}
+        =\mathbf{T} \in \mathbb{R}^{B \times T' \times 180}
+    \]
+    where the result tensor \(\mathbf{T}\) has '1' for the correct class in each time frame, and '0' for each incorrect class.
+    \item Apply the cross-entropy function to get the final loss for each time frame:
+    \[
+        loss_{b,t} = -\sum_{i = 1}^{180} t_{b,t,i} \log (x_{b,t,i}) = \mathbf{L} \in \mathbb{R}^{B \times T'}
+    \]
+\end{enumerate}
+
+\subsection*{Prediction of DoA}
+\addcontentsline{toc}{subsection}{Prediction of DoA}
+Once the predicted tensor \(x_{b,t,c}\) is gained, the final prediction of DoA is given by:
+\[
+    \text{PredDoA}_{b,t} = \text{argmax}(x_{b,t,c}, \text{dim} = 2)
+\]
+The index of the class among the 180 classes will be returned for each batch and each time frame denoted as the DoA of prediction.\\
+
+\subsection*{Computational Data Generation}
+\addcontentsline{toc}{subsection}{Computational Data Generation}
+The initial training process of the DNN utilizes computationally generated data, which can be gained at a lower cost than real-time recording. Meanwhile, different acoustic scenarios can be simulated by using the \textit{gpuRIR} \cite{diaz-guerra_gpurir_2021} and \textit{webrtcVAD} python libraries. During the data generation process, clean voice data from \textit{LibriSpeech} \cite{panayotov_resource_2015} will be segmented and integrated with noises from the dataset \textit{Noise92} \cite{andrew_assessment_1993}. The \textit{webrtcVAD} library is utilized to detect whether the segmentation contains noise, removing the empty segment from the dataset. The \textit{gpuRIR} \cite{diaz-guerra_gpurir_2021} is utilized to simulate the sound transmission process, generating the final signal received by each microphone channel. The \textit{gpuRIR} \cite{diaz-guerra_gpurir_2021} can also be used to simulate room reverberation and high reverberant cases will be considered in future testing if the model can process the non-reverberation case properly.\\
+During the data generation process, the DoA will be selected randomly, and the clean voice segmentation and noise will be used to ensure the model adapts to various acoustic situations.\\
+Three datasets will be generated: one for the training of the DNN, one for accuracy validation after each training epoch, and one for the final testing of the model's performance.
+
+\subsection*{The Training Process}
+\addcontentsline{toc}{subsection}{The Training Process}
+All the parameters in the previously mentioned structures are to be changed during the model training process, which uses labeled ground truth and the backward propagation process to adjust these parameters to fit the training data. \\
+The entire training process will be divided into epochs, and each epoch will be divided into steps. During one epoch, the DNN will process all the labeled data in the training dataset and a validation process will be conducted at the end of the one epoch, using the validation dataset to verify the result of this epoch. For each step, one batch, containing the number of data equal to the batch size, will be processed once through the DNN, including forward propagation and backward propagation, and the parameters will be adjusted once at the end.\\
+After a given number of epochs, the training process is regarded as finished, and the testing dataset will be used to measure the prediction performance of the model.

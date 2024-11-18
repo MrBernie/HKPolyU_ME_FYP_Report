@@ -1,0 +1,48 @@
+The experiment conducted for the DL-based method before the interim report mainly contains the model training experiment, aiming to observe the model's stability of converging. The process of testing real-world data using this model will be conducted in the coming semester. In this section, the details of the DNN model training experiment will be described.\\
+In the training process, the loss of each training epoch and the loss of the validation part at the end of each epoch were recorded. Meanwhile, at the end of each training process, the model's accuracy was evaluated.\\
+Notice that for each model training process, a new dataset of audio received by a 6-channel microphone was computationally generated using the same parameter:
+\begin{itemize}
+    \item Original clean voice segmentation and noise segmentation selected randomly from the database.
+    \item Signal to noise ratio randomly set between a range of values, such as between \(-5 db\) to \(15 db\).
+    \item Location of the sound source randomly set between \(0.3m\) to \(1.5m\) from the center of the microphone array.
+    \item Degree of arrival randomly set between \(0^{\circ}\) to \(180^\circ\).
+\end{itemize}
+Meanwhile, the validation dataset is generated using the same settings.\\
+
+\subsection*{Performance Evaluation Metrics}
+\addcontentsline{toc}{subsection}{Performance Evaluation Metrics}
+Three metrics are used to measure the performance of the predicted result of the DNN:
+\begin{enumerate}
+    \item Loss of the prediction result.
+    \item Mean Absolute Error (MAE) of predicted angle, given by:
+    \[
+        \text{MAE} = \frac{1}{(B\times T')} \sum_{i = 1}^{B}\sum_{j = 1}^{T'} |\text{GroundTruth}_{i,j}-\text{PredDoA}_{i,j}|
+    \]
+    where \(B\) is the total number of Batches, and \(T'\) is the time frame predicted in each batch.
+    \item Accuracy (ACC) of the predicted angle, given by:
+    \[
+        \text{ACC} = \frac{\text{Number of Correct Predictions}}{\text{Total Number of Predictions}}
+    \]
+    The situations of \(|\text{GroundTruth}_{b,t}-\text{PredDoA}_{b,t}| < 5^\circ\) are considered as correct prediction.
+\end{enumerate}
+
+\subsection*{Batch Size}
+\addcontentsline{toc}{subsection}{Batch Size}
+An experiment is carried out to test the difference of the model training using various batch size settings. Three experiments were conducted using \(\text{batch size} = 4,8,16\) (our hardware does not allow us to use larger batch sizes such as \(32\)). The training results are attached to the \textit{The DL Experiment Result of Different Batch Sizes}.\\
+The Following conclusions can be made:
+\begin{itemize}
+    \item All the experiments using various training batch sizes can converge, with final tested ACCs higher than \(0.95\).
+    \item The tested results for the loss denote that varying batch size has a minor effect on the final training losses since all three experiments have final losses of approximately \(2.6\).
+    \item The lowest MAE, a number of \(2.937\), appears when the batch size is \(8\), denoting that when batch size is \(8\), the prediction results are more concentrated.
+\end{itemize}
+It can be concluded that a batch size of \(8\) should be chosen for the coming real-world audio processing experiment.
+
+\subsection*{Mobile Sound Source and SNR}
+Another experiment is conducted to test the model's performance when the sound source is mobile (noted as the sound source's status), meaning that the location of the sound source varies during the audio segmentation, or with different SNRs. Three cases were tested: a static sound source with a large SNR range, a mobile sound source with a large SNR range, and a static sound source with a small SNR range. The experiment results are attached in the appendix section \textit{The DL Experiment Result of Different Sound Source Status and SNRs}. \\
+The following conclusions can be made:
+\begin{itemize}
+    \item All three experiments have converging results except that the experiment \textit{Nov 3} has a slightly diverging trend after \(60\) epochs, denoting a possibility of over-fitting in that model. 
+    \item It can be observed from the diagram that the training process of experiment \textit{Nov 6} is very unstable in epochs but demonstrates a better final testing result. It is possible this is a common phenomenon in DNN training due to randomness, including the random training data selection, random data dropout in the dropout layer, etc. 
+    \item 
+\end{itemize}
+

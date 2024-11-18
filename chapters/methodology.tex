@@ -1,0 +1,90 @@
+\chapter*{Methodology}
+\addcontentsline{toc}{chapter}{Methodology}
+
+In this section, the scenario setting of the project will be defined, and the theoretical methodology of the traditional SSL algorithm, DL-based SSL algorithm, and mobile platform will be described. The definition of the scenario setting is crucial for the purpose of research since different settings require different solutions. \\
+
+
+The microphone array setting is tentatively described by the following:
+\begin{enumerate}
+    \item A hexagonal-shaped microphone array consists of six chip microphones, placed on a hexagonal 3D-printed foundation.
+    \item The microphone center is defined as located at the origin of the microphone array coordinate system.
+    \item The distance between the array center and each microphone is \(0.06m\).
+    \item The geometry of the microphone array is shown below:
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\linewidth]{figures/Geometry_microphone_array.jpg}
+        \caption{The Geometry of the Hexagonal Microphone Array}
+    \end{figure}
+    \item The six microphones in the array are connected to a pre-processing PCB board which serves to combine the six channels signals into a USB serial port and to provide a buffer for the data. The apparatus of the microphone array is demonstrated below: 
+    \begin{figure}[H]
+        \begin{minipage}{0.45\textwidth}
+                \centering
+                \rotatebox[origin=c]{90}{\includegraphics[width=0.5\linewidth]{figures/Microphone_array_photo.jpg}}
+        \end{minipage}
+        \begin{minipage}{0.45\textwidth}
+                \centering
+                \rotatebox[origin=c]{90}{\includegraphics[width=0.5\linewidth]{figures/Microphone_array_photo_2.jpg}}
+        \end{minipage}
+        \caption{Hexagonal Microphone Array Apparatus}
+    \end{figure}
+\end{enumerate}
+
+The setting of the SSL scenario is tentatively described by the following:
+\begin{enumerate}
+    \item The sound source is located \(0.3m\) to \(2m\) from the center of the microphone array. It is a blue-tooth speaker playing a human-speaking voice segment from the Librispeech dataset \cite{panayotov_resource_2015}.
+    \item The sound source is located in the front of the microphone array, with its range of angle defined as \(\theta \in [0, \pi]\) in radius or \(\theta_d \in [0, 180]\) in degree. The unit circle defines the angle's orientation, which is counter-clockwise starting from the positive direction of the x-axis.
+        
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.3\linewidth]{figures/Unit_circle.png}
+        \caption{Unit Circle}
+    \end{figure}
+    \item The distance between the center of the microphone array and the sound source is relatively large compared to the distances between microphones in the microphone array, indicating that the situation of the microphone array surrounding the sound source will not be considered.
+    \item The surrounding environment is defined to be an indoor environment, indicating that complicated outdoor noises will not be involved. The non-reverberant situation will be first tested by utilizing the anechoic chamber. Future studies may include the reverberant situation if sufficient time exists.
+    \item The input of the algorithm is defined as a ".wav" audio file, which will be further converted into two data:
+    \begin{itemize}
+        \item The sample rate of the audio file is expressed as \(f_s\) in \(Hz\), denoting the number of samples per second.
+        \item The original multi-channel sound signal represented as a matrix:
+        \[
+            \mathbf{S} = 
+            \begin{bmatrix}
+                s_1(t)\\
+                s_2(t)\\
+                \vdots\\
+                s_6(t)\\
+            \end{bmatrix}
+        \]
+        In reality, it is represented in discrete form:
+        \[
+            \mathbf{S} = 
+            \begin{bmatrix}
+                s_{1,1} & s_{1,2} & \cdots & s_{1,t*f_s} \\
+                s_{2,1} & s_{2,2} & \cdots & s_{2,t*f_s} \\
+                \vdots & \vdots & \ddots & \vdots \\
+                s_{6,1} & s_{6,2} & \cdots & s_{6,t*f_s} \\
+            \end{bmatrix}
+        \]
+        where \(t\) stands for the total time of this audio file. The amplitude is represented by \(s_{c,n} \in [-32767, 32768]\), using the PCM16 audio file coding format.
+        
+    \end{itemize}
+    \item The output of the algorithm should be the degree of arrival (DoA) on the plane of the microphone array, which is defined as the Azmith angle \(\theta\). The sound source is assumed to be located on the same plane of the array. The elevation angle will not be considered in this project.
+
+\end{enumerate}
+
+Notice that this is a tentative setting. Further adjustments may be included during future experiments if the developed algorithm demonstrates high robustness, accuracy, and performance.
+
+
+\section*{Traditional SSL Methods (XIAO Pengbo)}
+\addcontentsline{toc}{section}{Traditional SSL Methods (XIAO Pengbo)}
+
+\input{chapters/methodology/traditional_ssl_method}
+
+\section*{Deep-Learning Based SSL Methods (ZENG Bailin)}
+\addcontentsline{toc}{section}{Deep-Learning Based SSL Methods (ZENG Bailin)}
+
+\input{chapters/methodology/dl_ssl_method}
+
+\section*{Mobile Platform (WU Zhuoli)}
+\addcontentsline{toc}{section}{Mobile Platform (WU Zhuoli)}
+
+\input{chapters/methodology/mobile_platform}
