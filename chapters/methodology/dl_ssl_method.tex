@@ -120,8 +120,8 @@ The initial training process of the DNN utilizes computationally generated data,
 During the data generation process, the DoA will be selected randomly, and the clean voice segmentation and noise will be used to ensure the model adapts to various acoustic situations.\\
 Three datasets will be generated: one for the training of the DNN, one for accuracy validation after each training epoch, and one for the final testing of the model's performance.
 
-\subsection*{The Training Process}
-\addcontentsline{toc}{subsection}{The Training Process}
+\subsection*{Training Process}
+\addcontentsline{toc}{subsection}{Training Process}
 All the parameters in the previously mentioned structures are to be changed during the model training process, which uses labeled ground truth and the backward propagation process to adjust these parameters to fit the training data. \\
 The entire training process will be divided into epochs, and each epoch will be divided into steps. During one epoch, the DNN will process all the labeled data in the training dataset and a validation process will be conducted at the end of the one epoch, using the validation dataset to verify the result of this epoch. For each step, one batch, containing the number of data equal to the batch size, will be processed once through the DNN, including forward propagation and backward propagation, and the parameters will be adjusted once at the end.\\
 After a given number of epochs, the training process is regarded as finished, and the testing dataset will be used to measure the prediction performance of the model.

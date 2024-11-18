@@ -8,6 +8,8 @@
     \includegraphics[width=1\linewidth]{figures/Gantt_chart.png}
 \end{figure}
 
+
+
 \section*{The DL Experiment Result of Different Batch Sizes}
 \addcontentsline{toc}{section}{The Experiment Result of Different Batch Sizes}
 \begin{figure}[H]
@@ -42,6 +44,8 @@
     \caption{Final Test Result of Different Batch Sizes}
 \end{table}
 
+
+
 \section*{The DL Experiment Result of Different Sound Source Status and SNR Ranges}
 \addcontentsline{toc}{section}{The Experiment Result of Different Sound Source Status and SNR Ranges}
 \begin{figure}[H]
@@ -73,4 +77,36 @@
          \hline
     \end{tabular}
     \caption{Final Test Result of Different Status and SNR Ranges}
+\end{table}
+
+
+\section*{The DL Experiment Result of Different SNRs}
+\addcontentsline{toc}{section}{The Experiment Result of Different SNRs}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/SNRs Valid_ Loss VS epoch.jpeg}
+    \caption{Validation: Loss vs Epoch for Different SNRs}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/SNRs Valid_ ACC VS epoch.jpeg}
+    \caption{Validation: ACC vs Epoch for Different SNRs}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/SNRs Valid_ MAE VS epoch.jpeg}
+    \caption{Validation: MAE vs Epoch for Different SNRs}
+\end{figure}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+         Experiment Name& SNR (range in \(db\)) & Test Loss & Test ACC & Test MAE\\
+         \hline
+         train nov 7 & \([1, 10]\) & 1.724 & 0.9723 & 2.198\\
+         \hline
+         train nov 1 & \([30, 40]\) & 0.8746 & 0.9772 & 2.38\\
+         \hline
+    \end{tabular}
+    \caption{Final Test Result of Different SNRs}
 \end{table}
