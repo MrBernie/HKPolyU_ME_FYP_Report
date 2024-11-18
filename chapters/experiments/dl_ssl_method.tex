@@ -37,12 +37,18 @@ The Following conclusions can be made:
 \end{itemize}
 It can be concluded that a batch size of \(8\) should be chosen for the coming real-world audio processing experiment.
 
-\subsection*{Mobile Sound Source and SNR}
-Another experiment is conducted to test the model's performance when the sound source is mobile (noted as the sound source's status), meaning that the location of the sound source varies during the audio segmentation, or with different SNRs. Three cases were tested: a static sound source with a large SNR range, a mobile sound source with a large SNR range, and a static sound source with a small SNR range. The experiment results are attached in the appendix section \textit{The DL Experiment Result of Different Sound Source Status and SNRs}. \\
+\subsection*{Mobile Sound Source and SNR Range}
+Another experiment is conducted to test the model's performance when the sound source is mobile (noted as the sound source's status), meaning that the location of the sound source varies during the audio segmentation, or with different scales of SNR ranges, meaning that the range of noisiness of the audio. \\
+Three cases were tested: a static sound source with a large SNR range, a mobile sound source with a large SNR range, and a static sound source with a small SNR range. The experiment results are attached in the appendix section \textit{The DL Experiment Result of Different Sound Source Status and SNR Ranges}. \\
 The following conclusions can be made:
 \begin{itemize}
     \item All three experiments have converging results except that the experiment \textit{Nov 3} has a slightly diverging trend after \(60\) epochs, denoting a possibility of over-fitting in that model. 
     \item It can be observed from the diagram that the training process of experiment \textit{Nov 6} is very unstable in epochs but demonstrates a better final testing result. It is possible this is a common phenomenon in DNN training due to randomness, including the random training data selection, random data dropout in the dropout layer, etc. 
-    \item 
+    \item Comparing the difference between experiment \textit{Nov 3} and \textit{Nov 5}, it can be observed that Static sound source does not necessarily provide a more accurate prediction result since it has lower loss than mobile situation (denoting higher possibilities are predicted for the correct DoA) but has lower ACC than mobile situation (denoting a lower accuracy of prediction on the DoA with the highest possibilities).
+    \item Comparing the difference between experiment \textit{Nov 5} and \textit{Nov 6}, it can be observed that a narrower range of SNR does provide a more accurate prediction result with lower loss, higher ACC, and lower MAE.
 \end{itemize}
+As conclusion, the model can comprehend both mobile sound sources and static sound sources. A narrower range of random SNR provides a more accurate prediction result.
+
+\subsection*{Different SNR}
+An experiment is conducted to test the model's performance when encountering different SNRs located in the same range. It is crucial to determine the effects on the prediction result of noisy audio.
 
